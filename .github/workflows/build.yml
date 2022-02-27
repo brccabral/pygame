@@ -90,10 +90,10 @@ jobs:
           }
 
           - { 
-            name: "MacOS x86_64 (cp37-cp38)",
+            name: "MacOS x86_64 (pp37-cp38)",
             os: macos-10.15,
             macarch: x86_64,
-            pyversions: cp37-* cp38-*
+            pyversions: pp37-* cp38-*
           }
 
           - { 
@@ -101,13 +101,6 @@ jobs:
             os: macos-10.15,
             macarch: x86_64,
             pyversions: cp39-* cp310-*
-          }
-
-          - { 
-            name: "MacOS x86_64 (pp37)",
-            os: macos-10.15,
-            macarch: x86_64,
-            pyversions: pp37-*
           }
 
           - { 
@@ -167,7 +160,7 @@ jobs:
           key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}-${{ matrix.macarch }}
 
       - name: Build and test wheels
-        uses: pypa/cibuildwheel@v2.2.2
+        uses: pypa/cibuildwheel@v2.3.1
         env:
           # Build arm64 and x86_64 wheels too on an Intel runner.
           # Note that the arm64 wheels cannot be tested on CI in this configuration
