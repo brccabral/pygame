@@ -1,17 +1,15 @@
 #!/bin/bash
 set -e -x
 
-
-if [[ "$1" == "buildpypy" ]]; then
-    export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 pp37-pypy37_pp75"
-else
-    if [ `uname -m` == "aarch64" ]; then
-       export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310"
-    else
-       export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
-    fi
+# don't make pyversion >= 3.9 wheels on manylinux1 
+export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38"
+if [[ "$1" != "manylinux1" ]]; then
+    export SUPPORTED_PYTHONS="$SUPPORTED_PYTHONS cp39-cp39 cp310-cp310"
 fi
 
+if [[ "$1" == "buildpypy" ]]; then
+    export SUPPORTED_PYTHONS="$SUPPORTED_PYTHONS pp37-pypy37_pp73 pp38-pypy38_pp73 pp39-pypy39_pp73"
+fi
 
 export PORTMIDI_INC_PORTTIME=1
 
@@ -33,12 +31,11 @@ ls -la /opt/python/
 
 # Compile wheels
 for PYVER in $SUPPORTED_PYTHONS; do
-    rm -rf /io/Setup /io/build/
     PYBIN="/opt/python/${PYVER}/bin"
-    PYTHON="/opt/python/${PYVER}/bin/python"
-	if [ ! -f ${PYBIN}/python ]; then
-	    PYTHON="/opt/python/${PYVER}/bin/pypy"
-	fi
+    PYTHON="${PYBIN}/python"
+    if [ ! -f ${PYTHON} ]; then
+        PYTHON="${PYBIN}/pypy"
+    fi
 
     ${PYTHON} -m pip install Sphinx
     cd io
@@ -59,10 +56,10 @@ export SDL_VIDEODRIVER=dummy
 # Install packages and test
 for PYVER in $SUPPORTED_PYTHONS; do
     PYBIN="/opt/python/${PYVER}/bin"
-    PYTHON="/opt/python/${PYVER}/bin/python"
-	if [ ! -f ${PYBIN}/python ]; then
-	    PYTHON="/opt/python/${PYVER}/bin/pypy"
-	fi
+    PYTHON="${PYBIN}/python"
+    if [ ! -f ${PYTHON} ]; then
+        PYTHON="${PYBIN}/pypy"
+    fi
 
     ${PYTHON} -m pip install pygame --no-index -f /io/buildconfig/manylinux-build/wheelhouse
     (cd $HOME; ${PYTHON} -m pygame.tests -vv --exclude opengl,music,timing)
