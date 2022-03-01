@@ -50,6 +50,14 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual((r.left, r.centery), r.midleft)
         self.assertEqual((r.right, r.centery), r.midright)
 
+    def test_rect_iter(self):
+        rect = Rect(50, 100, 150, 200)
+
+        # call __iter__ explicitly to test that it is defined
+        rect_iterator = rect.__iter__()
+        for i, val in enumerate(rect_iterator):
+            self.assertEqual(rect[i], val)
+
     def test_normalize(self):
         """Ensures normalize works when width and height are both negative."""
         test_rect = Rect((1, 2), (-3, -6))
