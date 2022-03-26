@@ -1105,8 +1105,9 @@ class ColorTypeTest(unittest.TestCase):
         self.assertFalse(100 in c)
         self.assertFalse(c.__contains__(10))
 
-        self.assertRaises(TypeError, lambda: "string" in c)
-        self.assertRaises(TypeError, lambda: 3.14159 in c)
+        # wrong types should return False too
+        self.assertFalse("string" in c)
+        self.assertFalse(3.14159 in c)
 
     def test_lerp(self):
         # setup

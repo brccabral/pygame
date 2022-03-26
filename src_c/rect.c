@@ -980,14 +980,18 @@ pg_rect_contains_seq(pgRectObject *self, PyObject *arg)
 {
     if (PyLong_Check(arg)) {
         int coord = (int)PyLong_AsLong(arg);
+        if (coord == -1 && PyErr_Occurred()) {
+            /* something like an overflow error happened, error here */
+            return -1;
+        }
+
         return coord == self->r.x || coord == self->r.y ||
                coord == self->r.w || coord == self->r.h;
     }
     int ret = _pg_rect_contains(self, arg);
     if (ret < 0) {
-        PyErr_SetString(PyExc_TypeError,
-                        "'in <pygame.Rect>' requires rect style object"
-                        " or int as left operand");
+        /* happens for a wrong type, return 0 */
+        return 0;
     }
     return ret;
 }

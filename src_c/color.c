@@ -1864,13 +1864,13 @@ static int
 _color_contains(pgColorObject *self, PyObject *arg)
 {
     if (!PyLong_Check(arg)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "'in <pygame.Color>' requires integer object");
-        return -1;
+        /* Don't raise TypeError here, return False in __contains__ */
+        return 0;
     }
 
     long comp = PyLong_AsLong(arg);
     if (comp == -1 && PyErr_Occurred()) {
+        /* overflow error, forward that */
         return -1;
     }
 
