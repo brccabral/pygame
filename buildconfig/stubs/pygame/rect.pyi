@@ -1,3 +1,4 @@
+from collections.abc import Collection
 from typing import Dict, Iterator, List, Sequence, Tuple, TypeVar, Union, overload
 
 from ._common import Coordinate, Literal, RectValue
@@ -5,7 +6,9 @@ from ._common import Coordinate, Literal, RectValue
 _K = TypeVar("_K")
 _V = TypeVar("_V")
 
-class Rect:
+# Rect confirms to the Collection ABC, since it also confirms to
+# Sized, Iterable and Container ABCs
+class Rect(Collection):
     x: int
     y: int
     top: int
