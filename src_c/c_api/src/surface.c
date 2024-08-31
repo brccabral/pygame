@@ -53,6 +53,7 @@ surf_subtype_new(SDL_Surface *s, int owner)
     }
 
     self = (Surface *)malloc(sizeof(Surface));
+    memset(self, 0, sizeof(Surface));
 
     if (Surface_SetSurface(self, s, owner) < 0)
         return NULL;

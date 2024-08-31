@@ -51,6 +51,7 @@ _display_state_cleanup(_DisplayState *state)
         free(state->gamma_ramp);
         state->gamma_ramp = NULL;
     }
+    state = NULL;
 }
 
 static int
@@ -212,7 +213,7 @@ _mac_display_init(void)
     return 1;
 }
 
-static int _display_init()
+int display_init()
 {
     const char *drivername;
     /* Compatibility:
@@ -232,7 +233,40 @@ static int _display_init()
         if (SDL_InitSubSystem(SDL_INIT_VIDEO))
             return 0;
     }
+
+    // TODO init time
+    // TODO init event
+
     return 1;
+}
+
+void
+display_quit()
+{
+    _display_state_cleanup(state);
+    if(texture) {
+        SDL_DestroyTexture(texture);
+        texture = NULL;
+    }
+    if(renderer) {
+        SDL_DestroyRenderer(renderer);
+        renderer = NULL;
+    }
+    if (GetDefaultWindowSurface()) {
+        SDL_FreeSurface(Surface_AsSDLSurface(GetDefaultWindowSurface()));
+        Surface_AsSDLSurface(GetDefaultWindowSurface()) = NULL;
+        free(GetDefaultWindowSurface());
+        SetDefaultWindowSurface(NULL);
+        SDL_DestroyWindow(GetDefaultWindow());
+        SetDefaultWindow(NULL);
+    }
+
+    // TODO quit event
+    // TODO quit time
+
+    if (SDL_WasInit(SDL_INIT_VIDEO)) {
+        SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    }
 }
 
 static int
@@ -259,7 +293,7 @@ _flip(_DisplayState *state)
     else {
         if (renderer != NULL) {
             SDL_Surface *screen =
-                Surface_AsSurface(GetDefaultWindowSurface());
+                Surface_AsSDLSurface(GetDefaultWindowSurface());
             SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -334,7 +368,7 @@ Surface *display_set_mode_size_flags_depth_vsync(int width, int height, int flag
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         /* note SDL works special like this too */
-        if (!_display_init(NULL, NULL))
+        if (!display_init(NULL, NULL))
             return NULL;
     }
 
@@ -369,7 +403,6 @@ Surface *display_set_mode_size_flags_depth_vsync(int width, int height, int flag
     }
 
     SDL_DelEventWatch(ResizeEventWatch, state);
-
 
     {
         Uint32 sdl_flags = 0;
@@ -617,7 +650,7 @@ Surface *display_set_mode_size_flags_depth_vsync(int width, int height, int flag
                 newownedsurf = surf;
             }
             else {
-                surf = Surface_AsSurface(surface);
+                surf = Surface_AsSDLSurface(surface);
             }
             if (flags & PGS_SCALED) {
                 state->scaled_gl_w = width;
@@ -740,10 +773,10 @@ Surface *display_set_mode_size_flags_depth_vsync(int width, int height, int flag
             goto DESTROY_WINDOW;
         }
         if (!surface) {
-            surface = Surface_New2(surf, newownedsurf != NULL);
+            surface = Surface_New2(surf, (newownedsurf != NULL));
         }
         else {
-            Surface_SetSurface(surface, surf, newownedsurf != NULL);
+            Surface_SetSurface(surface, surf, (newownedsurf != NULL));
         }
         if (!surface) {
             if (newownedsurf)
@@ -767,12 +800,12 @@ Surface *display_set_mode_size_flags_depth_vsync(int width, int height, int flag
         if (!state->icon)
             ErrMsg("could not display icon");
         else if (icon_colorkey != -1) {
-            SDL_SetColorKey(Surface_AsSurface(state->icon), SDL_TRUE,
+            SDL_SetColorKey(Surface_AsSDLSurface(state->icon), SDL_TRUE,
                             icon_colorkey);
         }
     }
     if (state->icon)
-        SDL_SetWindowIcon(win, Surface_AsSurface(state->icon));
+        SDL_SetWindowIcon(win, Surface_AsSDLSurface(state->icon));
 
     /*probably won't do much, but can't hurt, and might help*/
     SDL_PumpEvents();

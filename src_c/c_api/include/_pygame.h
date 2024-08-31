@@ -277,6 +277,6 @@ typedef struct {
  *
  * \note SDL_Surface* pgSurface_AsSurface(PyObject *x)
  */
-#define Surface_AsSurface(x) (((Surface *)x)->surf)
+#define Surface_AsSDLSurface(x) (((Surface *)x)->surf)
 
 #define ErrMsg(msg) fprintf(stderr, "%s\n", (msg))

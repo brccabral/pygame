@@ -1,4 +1,5 @@
 #pragma once
+#include "_pygame.h"
 
 // base.c
 SDL_Window *

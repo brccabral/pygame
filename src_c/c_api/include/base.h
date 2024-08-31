@@ -1,6 +1,6 @@
 #pragma once
 
 
-int init();
+int *init();
 
 void quit();

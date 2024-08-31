@@ -1,5 +1,7 @@
 #pragma once
 
+int display_init();
+void display_quit();
 Surface *display_set_mode_size_flags_depth_vsync(int width, int height, int flags, int depth, int vsync);
 Surface *display_set_mode_size_flags_depth(int width, int height, int flags, int depth);
 Surface *display_set_mode_size_flags(int width, int height, int flags);

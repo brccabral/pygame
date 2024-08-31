@@ -37,10 +37,12 @@ int sdl_was_init = 0;
 SDL_Window *default_window = NULL;
 Surface *default_screen = NULL;
 char *env_blend_alpha_SDL2 = NULL;
+int init_success_and_fail[2];
 
-
-int init()
+int *init()
 {
+    int success = 0, fail = 0;
+
     /*nice to initialize timer, so startup time will reflec init() time*/
 #if defined(WITH_THREAD) && !defined(MS_WIN32) && defined(SDL_INIT_EVENTTHREAD)
     sdl_was_init = SDL_Init(SDL_INIT_EVENTTHREAD | SDL_INIT_TIMER |
@@ -51,18 +53,43 @@ int init()
 
     env_blend_alpha_SDL2 = SDL_getenv("PYGAME_BLEND_ALPHA_SDL2");
 
+    /* Init modules */
+    if(!display_init()) { /* Display first, this also inits event,time */
+        ++fail;
+    }else {
+        ++success;
+    }
+    // TODO init joystick
+    // TODO init font
+    // TODO init freetype
+    // TODO init mixer
+
     is_init = 1;
 
-    return is_init;
+    init_success_and_fail[0] = success;
+    init_success_and_fail[1] = fail;
+    return init_success_and_fail;
 }
 
 void quit()
 {
-    if(default_screen->surf) {
-        SDL_FreeSurface(default_screen->surf);
+    /* Quit modules */
+    // TODO quit mixer
+    // TODO quit freetype
+    // TODO quit font
+    // TODO quit joystick
+    display_quit(); /* Display last, this also quits event,time */
+
+    if(default_screen) {
+        if(default_screen->surf) {
+            SDL_FreeSurface(default_screen->surf);
+        }
+        free(default_screen);
+        default_screen = NULL;
     }
     if (default_window) {
         SDL_DestroyWindow(default_window);
+        default_window = NULL;
     }
     is_init = 0;
     if (sdl_was_init) {
