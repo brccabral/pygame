@@ -1,7 +1,6 @@
 #include <pygame_c_api.h>
 #include <assert.h>
 #include "pgopengl.h"
-#include "pygame.h"
 
 #if !defined(__APPLE__)
 char *icon_defaultname = "pygame_icon.bmp";

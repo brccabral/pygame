@@ -8,6 +8,9 @@ add_library(pygame STATIC
         src/display.c
         src/event.c
         src/surface.c
+        src/surface_fill.c
+        src/surflock.c
+        src/color.c
 )
 target_include_directories(pygame PUBLIC /usr/include/SDL2)
 target_include_directories(pygame PUBLIC include)

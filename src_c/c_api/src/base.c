@@ -179,3 +179,25 @@ SetDefaultWindowSurface(Surface *screen)
     }
     default_screen = screen;
 }
+
+int
+RGBAFromObj(Color *obj, Uint8 *RGBA)
+{
+    size_t length;
+
+    length = obj->len;
+    if (length < 3 || length > 4) {
+        return 0;
+    }
+
+    RGBA[0] = obj->data[0];
+    RGBA[1] = obj->data[1];
+    RGBA[2] = obj->data[2];
+    if (length == 4) {
+        RGBA[3] = obj->data[3];
+    }
+    else {
+        RGBA[3] = (Uint8)255;
+    }
+    return 1;
+}

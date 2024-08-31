@@ -24,6 +24,8 @@
 #ifndef SURFACE_H
 #define SURFACE_H
 
+#include "_pygame.h"
+
 /* This is defined in SDL.h */
 #if defined(_POSIX_C_SOURCE)
 #undef _POSIX_C_SOURCE
@@ -337,24 +339,6 @@
 #endif
 
 int
-surface_fill_blend(SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
-                   int blendargs);
-
-void
-surface_respect_clip_rect(SDL_Surface *surface, SDL_Rect *rect);
-
-int
-pygame_AlphaBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
-                 SDL_Rect *dstrect, int the_args);
-
-int
-pygame_Blit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
-            SDL_Rect *dstrect, int the_args);
-
-int
-premul_surf_color_by_alpha(SDL_Surface *src, SDL_Surface *dst);
-
-int
-pg_warn_simd_at_runtime_but_uncompiled();
+Surface_fill(Surface *self, Color *color, SDL_Rect *rect, int special_flags, SDL_Rect *drawn_area);
 
 #endif /* SURFACE_H */

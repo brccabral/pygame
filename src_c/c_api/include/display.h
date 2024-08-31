@@ -1,5 +1,7 @@
 #pragma once
 
+#include "_pygame.h"
+
 int display_init();
 void display_quit();
 Surface *display_set_mode_size_flags_depth_vsync(int width, int height, int flags, int depth, int vsync);

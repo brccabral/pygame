@@ -7,3 +7,4 @@
 #include "event.h"
 #include "display.h"
 #include "surface.h"
+#include "color.h"

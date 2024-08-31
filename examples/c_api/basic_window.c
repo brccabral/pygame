@@ -5,6 +5,8 @@ int main()
     init();
 
     Surface *surface = display_set_mode_size(100, 100);
+    Color red = {{255,0,255,0}, 3};
+    Surface_fill(surface, &red, NULL, 0, NULL);
 
     SDL_Event events[10];
     int len;

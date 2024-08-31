@@ -209,10 +209,10 @@ typedef enum {
 /*
  * event module internals
  */
-struct pgEventObject {
+typedef struct {
     int type;
     void *dict;
-};
+} EventObject;
 
 /*
  * surflock module internals
@@ -225,24 +225,23 @@ typedef struct {
 /*
  * surface module internals
  */
-struct SubSurface_Data {
+typedef struct {
     struct Surface *owner;
     int pixeloffset;
     int offsetx, offsety;
-};
+} SubSurface_Data;
 
 /*
  * color module internals
  */
-struct pgColorObject {
+typedef struct {
     Uint8 data[4];
     Uint8 len;
-};
+} Color;
 
 /*
  * SURFACE module
  */
-struct SubSurface_Data;
 
 /**
  * \brief A pygame object that wraps an SDL_Surface. A `pygame.Surface`
@@ -258,7 +257,7 @@ typedef struct {
     /**
      * \brief The subsurface data for this surface (if a subsurface).
      */
-    struct SubSurface_Data *subsurface;
+    SubSurface_Data *subsurface;
     /**
      * \brief A list of locks for this surface.
      */
