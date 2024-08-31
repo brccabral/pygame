@@ -294,17 +294,13 @@ static Surface *_display_resource(char *)
     return NULL;
 }
 
-Surface *display_set_mode_size(int width, int height)
+Surface *display_set_mode_size_flags_depth_vsync(int width, int height, int flags, int depth, int vsync)
 {
     const char *const DefaultTitle = "pygame window";
     SDL_Window *win = GetDefaultWindow();
     Surface *surface = GetDefaultWindowSurface();
     SDL_Surface *surf = NULL;
     SDL_Surface *newownedsurf = NULL;
-    int depth = 0;
-    int flags = 0;
-    int w, h;
-    int vsync = SDL_FALSE;
     /* display will get overwritten by parameters only if display
        parameter is given. By default, put the new window on the same
        screen as the old one */
@@ -330,11 +326,8 @@ Surface *display_set_mode_size(int width, int height)
         }
     }
 
-    w = width;
-    h = height;
-
     // Cannot set negative sized display mode
-    if (w < 0 || h < 0)
+    if (width < 0 || height < 0)
     {
         return NULL;
     }
@@ -387,13 +380,13 @@ Surface *display_set_mode_size(int width, int height)
             return NULL;
         }
 
-        if (w == 0 && h == 0 && !(flags & PGS_SCALED)) {
+        if (width == 0 && height == 0 && !(flags & PGS_SCALED)) {
             /* We are free to choose a resolution in this case, so we can
            avoid changing the physical resolution. This used to default
            to the max supported by the monitor, but we can use current
            desktop resolution without breaking compatibility. */
-            w = display_mode.w;
-            h = display_mode.h;
+            width = display_mode.w;
+            height = display_mode.h;
         }
 
         if (flags & PGS_FULLSCREEN) {
@@ -411,7 +404,7 @@ Surface *display_set_mode_size(int width, int height)
         }
 
         if (flags & PGS_SCALED) {
-            if (w == 0 || h == 0) {
+            if (width == 0 || height == 0) {
                 ErrMsg("Cannot set 0 sized SCALED display mode");
                 return NULL;
             }
@@ -445,7 +438,7 @@ Surface *display_set_mode_size(int width, int height)
 #pragma PG_WARN(Not setting bpp ?)
 #pragma PG_WARN(Add mode stuff.)
         {
-            int w_1 = w, h_1 = h;
+            int w_1 = width, h_1 = height;
             int scale = 1;
             int center_window = 0;
             int x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
@@ -485,7 +478,7 @@ Surface *display_set_mode_size(int width, int height)
                          * change.
                          * When the window is not to be centred, previous
                          * position is retained unconditionally */
-                        if (!center_window || (w == old_w && h == old_h)) {
+                        if (!center_window || (width == old_w && height == old_h)) {
                             SDL_GetWindowPosition(win, &x, &y);
                         }
                     }
@@ -514,7 +507,7 @@ Surface *display_set_mode_size(int width, int height)
                     fractional_scaling = SDL_TRUE;
 
                 if (fractional_scaling) {
-                    float aspect_ratio = ((float)w) / (float)h;
+                    float aspect_ratio = ((float)width) / (float)height;
 
                     w_1 = display_bounds.w;
                     h_1 = display_bounds.h;
@@ -529,16 +522,16 @@ Surface *display_set_mode_size(int width, int height)
                 else {
                     int xscale, yscale;
 
-                    xscale = display_bounds.w / w;
-                    yscale = display_bounds.h / h;
+                    xscale = display_bounds.w / width;
+                    yscale = display_bounds.h / height;
 
                     scale = xscale < yscale ? xscale : yscale;
 
                     if (scale < 1)
                         scale = 1;
 
-                    w_1 = w * scale;
-                    h_1 = h * scale;
+                    w_1 = width * scale;
+                    h_1 = height * scale;
                 }
             }
 
@@ -619,7 +612,7 @@ Surface *display_set_mode_size(int width, int height)
 
                 So we make a fake surface.
                 */
-                surf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32,
+                surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32,
                                             0xff << 16, 0xff << 8, 0xff, 0);
                 newownedsurf = surf;
             }
@@ -627,8 +620,8 @@ Surface *display_set_mode_size(int width, int height)
                 surf = Surface_AsSurface(surface);
             }
             if (flags & PGS_SCALED) {
-                state->scaled_gl_w = w;
-                state->scaled_gl_h = h;
+                state->scaled_gl_w = width;
+                state->scaled_gl_h = height;
             }
 
             /* Even if this succeeds, we can never *really* know if vsync
@@ -692,9 +685,9 @@ Surface *display_set_mode_size(int width, int height)
                         !(flags & PGS_FULLSCREEN ||
                           SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY",
                                              SDL_FALSE)));
-                    SDL_RenderSetLogicalSize(renderer, w, h);
+                    SDL_RenderSetLogicalSize(renderer, width, height);
                     /* this must be called after creating the renderer!*/
-                    SDL_SetWindowMinimumSize(win, w, h);
+                    SDL_SetWindowMinimumSize(win, width, height);
 
                     SDL_GetRendererInfo(renderer, &info);
                     if (vsync && !(info.flags & SDL_RENDERER_PRESENTVSYNC)) {
@@ -710,9 +703,9 @@ Surface *display_set_mode_size(int width, int height)
 
                     texture = SDL_CreateTexture(
                         renderer, SDL_PIXELFORMAT_ARGB8888,
-                        SDL_TEXTUREACCESS_STREAMING, w, h);
+                        SDL_TEXTUREACCESS_STREAMING, width, height);
                 }
-                surf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32,
+                surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32,
                                             0xff << 16, 0xff << 8, 0xff, 0);
                 newownedsurf = surf;
             }
@@ -793,6 +786,23 @@ DESTROY_WINDOW:
     else if (win)
         SDL_DestroyWindow(win);
     return NULL;
+}
+
+Surface *
+display_set_mode_size_flags_depth(int width, int height, int flags, int depth)
+{
+    return display_set_mode_size_flags_depth_vsync(width, height, flags, depth, 0);
+}
+
+Surface *
+display_set_mode_size_flags(int width, int height, int flags)
+{
+    return display_set_mode_size_flags_depth_vsync(width, height, flags, 0, 0);
+}
+
+Surface *display_set_mode_size(int width, int height)
+{
+    return display_set_mode_size_flags(width, height, 0);
 }
 
 Surface *display_set_mode()

@@ -28,6 +28,9 @@ Surface_SetSurface(Surface *self, SDL_Surface *s, int owner)
         ErrMsg(SDL_GetError());
         return -1;
     }
+    if(!self) {
+        return -1;
+    }
     if (s == self->surf) {
         self->owner = owner;
         return 0;
@@ -51,7 +54,7 @@ surf_subtype_new(SDL_Surface *s, int owner)
 
     self = (Surface *)malloc(sizeof(Surface));
 
-    if (Surface_SetSurface(self, s, owner))
+    if (Surface_SetSurface(self, s, owner) < 0)
         return NULL;
 
     return self;
